@@ -1,0 +1,1 @@
+print('cu.lua')
