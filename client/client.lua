@@ -2,47 +2,55 @@
 
 
 
+local hasHiddenUI = false -- Declare a flag to keep track of whether we've hidden the UI
 
 Citizen.CreateThread(function()
-        local sleep
-        while true do
-            sleep = 1000
-            pcord = GetEntityCoords(PlayerPedId())
+    local sleep
+    while true do
+        sleep = 1000
+        pcord = GetEntityCoords(PlayerPedId())
 
-            local isPlayerNearUi = false
+        local isPlayerNearUi = false
 
-            for k, v in pairs(Config.SellLocations) do
-                local Locations = v
-                
-                dst = GetDistanceBetweenCoords(pcord, Locations)
-                if dst < 5 and not pressed then
-                    isPlayerNearUi = true
-                    sleep = 5
+        for k, v in pairs(Config.SellLocations) do
+            local Locations = v
+            
+            dst = GetDistanceBetweenCoords(pcord, Locations)
+            if dst < 5 and not pressed then
+                isPlayerNearUi = true
+                sleep = 5
 
-                    if dst < 1 then
-                        textUI(Config.Lang.sell.text,Config.Lang.sell.position, Config.Lang.sell.icon, Config.Lang.sell.style.borderRadius, Config.Lang.sell.style.backgroundColor, Config.Lang.sell.style.color )
-                  
-                        
-                        if IsControlJustReleased(1, 51) then
-                            SellMenu()
-                        end
-                    else
-                        
-                        textUI(Config.Lang.selldistance.text..' ('..math.floor(dst)..')',Config.Lang.sell.position, Config.Lang.sell.icon, Config.Lang.sell.style.borderRadius, Config.Lang.sell.style.backgroundColor, Config.Lang.sell.style.color )
-
+                if dst < 1 then
+                    textUI(Config.Lang.sell.text,Config.Lang.sell.position, Config.Lang.sell.icon, Config.Lang.sell.style.borderRadius, Config.Lang.sell.style.backgroundColor, Config.Lang.sell.style.color )
+              
+                    
+                    if IsControlJustReleased(1, 51) then
+                        SellMenu()
                     end
+                else
+                    
+                    textUI(Config.Lang.selldistance.text..' ('..math.floor(dst)..')',Config.Lang.sell.position, Config.Lang.sell.icon, Config.Lang.sell.style.borderRadius, Config.Lang.sell.style.backgroundColor, Config.Lang.sell.style.color )
 
-                    sleep = 0
                 end
-            end
 
-            if not isPlayerNearUi then
-                lib.hideTextUI()
+                sleep = 0
             end
-
-            Citizen.Wait(sleep)
         end
-    end)
+
+        -- Only hide the UI once if the player isn't near and the UI hasn't been hidden already
+        if not isPlayerNearUi and not hasHiddenUI then
+            lib.hideTextUI()
+            hasHiddenUI = true
+        end
+        
+        -- If the player is near the UI, set the flag to false to allow hiding the UI again later
+        if isPlayerNearUi then
+            hasHiddenUI = false
+        end
+
+        Citizen.Wait(sleep)
+    end
+end)
 
 
 function SellMenu()
